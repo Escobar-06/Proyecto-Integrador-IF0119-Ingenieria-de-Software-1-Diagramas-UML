@@ -1,0 +1,137 @@
+classDiagram
+
+    class OperarioPlanta{
+        -String User_ID
+        -String Contraseña
+        -String FechaAcceso
+        -String UltimoAcceso
+
+        +VerifyLogin() Bool
+        +GenerarOrden()
+        +VerRegistrosOrden()
+    }
+
+    OperarioPlanta "1" o-- "0..*" TurnoTrabajo
+
+    class TurnoTrabajo{
+        -int Turno_ID
+        -String FechaTurno
+
+        +AsignarTurno()
+        +VerFechaTurno()
+    }
+
+    OperarioPlanta "1" -- "0..*" OrdenProducción
+
+    class OrdenProducción{
+        -int Order_ID
+        -String User_ID
+        -String FechaCreación
+
+        +VerDetallesPedido()
+        +RevisarPedido()
+        +RealizarPedido()
+    }
+
+    OrdenProducción "1" *-- "1..*" ItemDetalleOrden
+
+    class ItemDetalleOrden {
+        -int Item_ID
+        -int CantidadMaterial
+        -Bool LimiteCantMaterial
+        -int ValorUnicoProducción
+
+        +CalcPrecio()
+        +GenerarEstado()
+    }
+
+    ItemDetalleOrden "1" o-- "1..*" MateriaPrima
+
+    class MateriaPrima{
+        -int Material_ID
+        -String NombreMaterial
+        -int CantidadDisponible
+        -Bool LimiteCantMaterial
+
+        +VerDisponibilidad()
+    }
+
+    class Inventario{
+        -int IdBodega
+        -int MaterialDisponible
+
+        +VerCantidad()
+        +AlertaStockLimite()
+        +GestionarStock()
+        +VerMateriales()
+    }
+
+    Inventario "1" o-- "1..*" MateriaPrima
+
+    class OrdenCompra{
+        -int IdCompra
+        -String FechaCreación
+        -String EstadoCompra
+
+        +RealizarOrden()
+        +ConsultarOrden()
+        +VerEstadoOrden()
+    }
+
+    OrdenCompra "1" *-- "1..*" DetalleOrdenCompra
+
+    class DetalleOrdenCompra{
+        -int IdDetalle
+        -int PrecioCompra
+        -String FechaEmisión
+        -String FechaVencimiento
+
+        +VerDetalles()
+        +PagarFactura()
+    }
+
+    class Proveedor{
+        -int IdProveedor
+        -String NombreProveedor
+        -String ApellidoProveedor
+        -String NúmeroTelefónico
+        -String Correo
+
+        +RegistrarProveedor()
+        +ActualizarDatos()
+        +GenerarCompra()
+    }
+
+    Proveedor "1" o-- "0..*" OrdenCompra
+
+    DetalleOrdenCompra "1" o-- "1..*" MateriaPrima
+
+    OrdenCompra --> Inventario : Recibir insumos
+
+    Inventario --> OrdenProducción : Verificar stock
+
+    class Nómina{
+        -int IdNomina
+        -String Periodo
+        -String Estado
+        -String FechaGeneración
+
+        +GenerarNómina()
+        +VerNómina()
+    }
+
+    class Liquidacion{
+        -int IdLiquidacion
+        -int SalarioBase
+        -int HorasTrabajadas
+        -int ValorTotal
+
+        +CalcularLiquidacion()
+        +VerLiquidacion()
+    }
+
+    Nómina "1" *-- "1..*" Liquidacion
+
+    OperarioPlanta "1" -- "0..*" Liquidacion
+
+    OrdenProducción --> Nómina : Reportar orden terminada

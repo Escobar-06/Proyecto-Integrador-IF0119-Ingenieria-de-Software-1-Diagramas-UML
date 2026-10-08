@@ -1,0 +1,44 @@
+sequenceDiagram
+
+    actor C as Cliente
+    participant IW as Interfaz Web
+    participant V as Ventas
+    participant I as Inventario
+    participant Q as Cola de Eventos
+    participant CO as Compras
+    participant PRO as Producción
+    participant N as Nómina
+
+    C->>IW: 1. Ordenar Pedido
+    IW->>V: 2. Verificar Saldo
+
+    alt Saldo suficiente (400.000$ >= saldo)
+
+        V->>I: 3. Verificar Inventario
+
+        alt Stock suficiente (20 >= unidades)
+            I->>V: 4. Stock suficiente
+            V->>IW: 5. Realizar Pedido
+            IW->>C: 6. Pedido aprobado
+            I->>PRO: 7. Ejecutar Producción
+            PRO--)N: 8. Reportar Orden Finalizada 
+
+        else Stock insuficiente (20 < unidades)
+            I--)Q: 9. Alerta de stock
+            Q--)PRO: 10. Notificar falta de material
+
+            opt Alerta a Compras
+                Q--)CO: 11. Solicitar reposición
+            end
+
+            IW->>C: 12. Mostrar mensaje
+            Note over C: Orden en espera
+        end
+
+    else Saldo insuficiente (400.000$ < saldo)
+        V--)Q: 13. Alerta de saldo insuficiente
+        Q--)PRO: 14. Notificar incidencia
+
+        IW->>C: 15. Mostrar mensaje
+        Note over C: Orden en espera
+    end
